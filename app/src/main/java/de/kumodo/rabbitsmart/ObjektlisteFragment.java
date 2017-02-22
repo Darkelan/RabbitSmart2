@@ -17,9 +17,39 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.widget.Toast;
+
 public class ObjektlisteFragment extends Fragment{
 
     public ObjektlisteFragment() {
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Menü bekannt geben, dadurch kann unser Fragment Menü-Events verarbeiten
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_objektlistefragment, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Wir prüfen, ob Menü-Element mit der ID "action_daten_aktualisieren"
+        // ausgewählt wurde und geben eine Meldung aus
+        int id = item.getItemId();
+        if (id == R.id.action_daten_aktualisieren) {
+            Toast.makeText(getActivity(), "Aktualisieren gedrückt!", Toast.LENGTH_LONG).show();
+
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
