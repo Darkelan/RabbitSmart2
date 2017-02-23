@@ -3,6 +3,7 @@ package de.kumodo.rabbitsmart;
 /**
  * Created by l.schmidt on 20.02.2017.
  */
+import android.os.AsyncTask;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -23,6 +24,8 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 public class ObjektlisteFragment extends Fragment{
+
+    ArrayAdapter<String> mObjektlisteAdapter;
 
     public ObjektlisteFragment() {
     }
@@ -45,7 +48,15 @@ public class ObjektlisteFragment extends Fragment{
         // ausgewählt wurde und geben eine Meldung aus
         int id = item.getItemId();
         if (id == R.id.action_daten_aktualisieren) {
-            Toast.makeText(getActivity(), "Aktualisieren gedrückt!", Toast.LENGTH_LONG).show();
+            //Toast.makeText(getActivity(), "Aktualisieren gedrückt!", Toast.LENGTH_LONG).show();
+
+            // Erzeugen einer Instanz von HoleDatenTask und starten des asynchronen Tasks
+            HoleDatenTask holeDatenTask = new HoleDatenTask();
+            holeDatenTask.execute("Aktie");
+
+            // Den Benutzer informieren, dass neue Aktiendaten im Hintergrund abgefragt werden
+            Toast.makeText(getActivity(), "Aktiendaten werden abgefragt!",
+                    Toast.LENGTH_SHORT).show();
 
             return true;
         }
@@ -87,7 +98,7 @@ public class ObjektlisteFragment extends Fragment{
 
         List<String> objektListe = new ArrayList<>(Arrays.asList(objektlisteArray));
 
-        ArrayAdapter <String> objektlisteAdapter =
+        mObjektlisteAdapter =
                 new ArrayAdapter<>(
                         getActivity(), // Die aktuelle Umgebung (diese Activity)
                         R.layout.list_item_objektliste, // ID der XML-Layout Datei
@@ -97,9 +108,68 @@ public class ObjektlisteFragment extends Fragment{
         View rootView = inflater.inflate(R.layout.fragment_objektliste, container, false);
 
         ListView objektlisteListView = (ListView) rootView.findViewById(R.id.listview_objektliste);
-        objektlisteListView.setAdapter(objektlisteAdapter);
+        objektlisteListView.setAdapter(mObjektlisteAdapter);
 
         return rootView;
+    }
+
+    // Innere Klasse HoleDatenTask führt den asynchronen Task auf eigenem Arbeitsthread aus
+    public class HoleDatenTask extends AsyncTask<String, Integer, String[]> {
+
+        private final String LOG_TAG = HoleDatenTask.class.getSimpleName();
+
+        @Override
+        protected String[] doInBackground(String... strings) {
+
+            String[] ergebnisArray = new String[20];
+
+            for (int i=0; i < 20; i++) {
+
+                // Den StringArray füllen wir mit Beispieldaten
+                ergebnisArray[i] = strings[0] + "_" + (i+1);
+
+                // Alle 5 Elemente geben wir den aktuellen Fortschritt bekannt
+                if (i%5 == 4) {
+                    publishProgress(i+1, 20);
+                }
+
+                // Mit Thread.sleep(600) simulieren wir eine Wartezeit von 600 ms
+                try {
+                    Thread.sleep(600);
+                }
+                catch (Exception e) { Log.e(LOG_TAG, "Error ", e); }
+            }
+
+            return ergebnisArray;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+
+            // Auf dem Bildschirm geben wir eine Statusmeldung aus, immer wenn
+            // publishProgress(int...) in doInBackground(String...) aufgerufen wird
+            Toast.makeText(getActivity(), values[0] + " von " + values[1] + " geladen",
+                    Toast.LENGTH_SHORT).show();
+
+        }
+
+        @Override
+        protected void onPostExecute(String[] strings) {
+
+            // Wir löschen den Inhalt des ArrayAdapters und fügen den neuen Inhalt ein
+            // Der neue Inhalt ist der Rückgabewert von doInBackground(String...) also
+            // der StringArray gefüllt mit Beispieldaten
+            if (strings != null) {
+                mObjektlisteAdapter.clear();
+                for (String aktienString : strings) {
+                    mObjektlisteAdapter.add(aktienString);
+                }
+            }
+
+            // Hintergrundberechnungen sind jetzt beendet, darüber informieren wir den Benutzer
+            Toast.makeText(getActivity(), "Aktiendaten vollständig geladen!",
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
 }
