@@ -129,7 +129,7 @@ public class ObjektlisteFragment extends Fragment{
                 ergebnisArray[i] = strings[0] + "_" + (i+1);
 
                 // Alle 5 Elemente geben wir den aktuellen Fortschritt bekannt
-                if (i%5 == 4) {
+                /*if (i%5 == 4)*/{
                     publishProgress(i+1, 20);
                 }
 
