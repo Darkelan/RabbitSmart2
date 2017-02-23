@@ -5,6 +5,13 @@ package de.kumodo.rabbitsmart;
  */
 import android.os.AsyncTask;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -121,26 +128,90 @@ public class ObjektlisteFragment extends Fragment{
         @Override
         protected String[] doInBackground(String... strings) {
 
-            String[] ergebnisArray = new String[20];
-
-            for (int i=0; i < 20; i++) {
-
-                // Den StringArray füllen wir mit Beispieldaten
-                ergebnisArray[i] = strings[0] + "_" + (i+1);
-
-                // Alle 5 Elemente geben wir den aktuellen Fortschritt bekannt
-                /*if (i%5 == 4)*/{
-                    publishProgress(i+1, 20);
-                }
-
-                // Mit Thread.sleep(600) simulieren wir eine Wartezeit von 600 ms
-                try {
-                    Thread.sleep(600);
-                }
-                catch (Exception e) { Log.e(LOG_TAG, "Error ", e); }
+            if (strings.length == 0) { // Keine Eingangsparameter erhalten, daher Abbruch
+                return null;
             }
 
-            return ergebnisArray;
+            // Exakt so muss die Anfrage-URL an die YQL Platform gesendet werden:
+            /*
+            https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20csv%20where%20url
+            %3D'http%3A%2F%2Fdownload.finance.yahoo.com%2Fd%2Fquotes.csv%3Fs%3D
+            BMW.DE%2CDAI.DE%2C%255EGDAXI%26f%3Dsnc4xl1d1t1c1p2ohgv%26e%3D.csv'%20and%20columns%3D'
+            symbol%2Cname%2Ccurrency%2Cexchange%2Cprice%2Cdate%2Ctime%2Cchange%2Cpercent%2C
+            open%2Chigh%2Clow%2Cvolume'&diagnostics=true";
+            */
+
+            // Wir konstruieren die Anfrage-URL fÃ¼r die YQL Platform
+            final String URL_PARAMETER = "https://query.yahooapis.com/v1/public/yql";
+            final String SELECTOR = "select%20*%20from%20csv%20where%20";
+            final String DOWNLOAD_URL = "http://download.finance.yahoo.com/d/quotes.csv";
+            final String DIAGNOSTICS = "'&diagnostics=true";
+
+            String symbols = "BMW.DE,DAI.DE,^GDAXI";
+            symbols = symbols.replace("^", "%255E");
+            String parameters = "snc4xl1d1t1c1p2ohgv";
+            String columns = "symbol,name,currency,exchange,price,date,time," +
+                    "change,percent,open,high,low,volume";
+
+            String anfrageString = URL_PARAMETER;
+            anfrageString += "?q=" + SELECTOR;
+            anfrageString += "url='" + DOWNLOAD_URL;
+            anfrageString += "?s=" + symbols;
+            anfrageString += "%26f=" + parameters;
+            anfrageString += "%26e=.csv'%20and%20columns='" + columns;
+            anfrageString += DIAGNOSTICS;
+
+            Log.v(LOG_TAG, "Zusammengesetzter Anfrage-String: " + anfrageString);
+
+            // Die URL-Verbindung und der BufferedReader, werden im finally-Block geschlossen
+            HttpURLConnection httpURLConnection = null;
+            BufferedReader bufferedReader = null;
+
+            // In diesen String speichern wir die Aktiendaten im XML-Format
+            String aktiendatenXmlString = "";
+
+            try {
+                URL url = new URL(anfrageString);
+
+                // Aufbau der Verbindung zu YQL Platform
+                httpURLConnection = (HttpURLConnection) url.openConnection();
+
+                InputStream inputStream = httpURLConnection.getInputStream();
+
+                if (inputStream == null) { // Keinen Aktiendaten-Stream erhalten, daher Abbruch
+                    return null;
+                }
+                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                String line;
+
+                while ((line = bufferedReader.readLine()) != null) {
+                    aktiendatenXmlString += line + "\n";
+                }
+                if (aktiendatenXmlString.length() == 0) { // Keine Aktiendaten ausgelesen, Abbruch
+                    return null;
+                }
+                Log.v(LOG_TAG, "Aktiendaten XML-String: " + aktiendatenXmlString);
+                publishProgress(1,1);
+
+            } catch (IOException e) { // Beim Holen der Daten trat ein Fehler auf, daher Abbruch
+                Log.e(LOG_TAG, "Error ", e);
+                return null;
+            } finally {
+                if (httpURLConnection != null) {
+                    httpURLConnection.disconnect();
+                }
+                if (bufferedReader != null) {
+                    try {
+                        bufferedReader.close();
+                    } catch (final IOException e) {
+                        Log.e(LOG_TAG, "Error closing stream", e);
+                    }
+                }
+            }
+
+            // Hier parsen wir spÃ¤ter die XML Aktiendaten
+
+            return null;
         }
 
         @Override
