@@ -3,6 +3,7 @@ package de.kumodo.rabbitsmart;
 /**
  * Created by l.schmidt on 20.02.2017.
  */
+import android.content.Intent;
 import android.os.AsyncTask;
 
 import java.io.BufferedReader;
@@ -42,6 +43,8 @@ import org.w3c.dom.NodeList;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import android.widget.AdapterView;
 
 public class ObjektlisteFragment extends Fragment{
 
@@ -127,8 +130,24 @@ public class ObjektlisteFragment extends Fragment{
 
         View rootView = inflater.inflate(R.layout.fragment_objektliste, container, false);
 
+        // Eine Referenz zu unserem ListView, und Verbinden des ArrayAdapters mit dem ListView
+        // Anschließend registrieren eines OnItemClickListener für den ListView
+
         ListView objektlisteListView = (ListView) rootView.findViewById(R.id.listview_objektliste);
         objektlisteListView.setAdapter(mObjektlisteAdapter);
+
+        objektlisteListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                String aktienInfo = (String) adapterView.getItemAtPosition(position);
+                //Toast.makeText(getActivity(), aktienInfo, Toast.LENGTH_SHORT).show();
+
+                // Intent erzeugen und Starten der AktiendetailActivity mit explizitem Intent
+                Intent ObjektdetailIntent = new Intent(getActivity(), ObjektdetailActivity.class);
+                ObjektdetailIntent.putExtra(Intent.EXTRA_TEXT, aktienInfo);
+                startActivity(ObjektdetailIntent);
+            }
+        });
 
         return rootView;
     }
