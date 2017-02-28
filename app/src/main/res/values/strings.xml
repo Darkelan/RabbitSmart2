@@ -5,5 +5,10 @@
     <string name="action_settings">Einstellungen</string>
     <string name="action_daten_aktualisieren">Aktualisieren</string>
     <string name="title_activity_objektdetail">Objektdetail</string>
+    <string name="title_activity_einstellungen">Einstellungen</string>
+
+    <string name="preference_objektliste_title">Liste der Finanzinstrumente</string>
+    <string name="preference_objektliste_key">Objektliste</string>
+    <string name="preference_objektliste_default">BMW.DE,DAI.DE,VOW3.DE,SAP.DE,^GDAXI</string>
 
 </resources>

@@ -4,6 +4,7 @@ package de.kumodo.rabbitsmart;
  * Created by l.schmidt on 28.02.2017.
  */
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -33,6 +34,7 @@ public class ObjektdetailActivity extends AppCompatActivity {
 
         if (id == R.id.action_settings) {
 
+            startActivity(new Intent(this, EinstellungenActivity.class));
             return true;
         }
 

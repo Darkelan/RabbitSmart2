@@ -36,3 +36,4 @@ public class ObjektdetailFragment extends Fragment {
     }
 }
 
+
