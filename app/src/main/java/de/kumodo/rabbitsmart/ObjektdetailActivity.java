@@ -7,10 +7,12 @@ package de.kumodo.rabbitsmart;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.support.v7.widget.ShareActionProvider;
 
 public class ObjektdetailActivity extends AppCompatActivity {
 
@@ -24,6 +26,37 @@ public class ObjektdetailActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_objektdetail, menu);
+
+        // Die AktiendetailActivity wurde über einen Intent aufgerufen
+        // Wir lesen aus dem empfangenen Intent die übermittelten Daten aus
+        String aktienInfo = "";
+        Intent empfangenerIntent = this.getIntent();
+        if (empfangenerIntent != null && empfangenerIntent.hasExtra(Intent.EXTRA_TEXT)) {
+            aktienInfo = empfangenerIntent.getStringExtra(Intent.EXTRA_TEXT);
+        }
+
+        // Holt das Menüeintrag-Objekt, das dem ShareActionProvider zugeordnet ist
+        MenuItem shareMenuItem = menu.findItem(R.id.action_teile_objektdaten);
+
+        // Holt den ShareActionProvider über den Share-Menüeintrag
+        android.support.v7.widget.ShareActionProvider sAP;
+        sAP = (android.support.v7.widget.ShareActionProvider) MenuItemCompat.getActionProvider(shareMenuItem);
+
+        // Erzeugen des SEND-Intents mit den Aktiendaten als Text
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        //noinspection deprecation
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "Daten zu: " + aktienInfo);
+
+        // Der SEND-Intent wird an den ShareActionProvider angehangen
+        if (sAP != null ) {
+            sAP.setShareIntent(shareIntent);
+        } else {
+            String LOG_TAG = ObjektdetailActivity.class.getSimpleName();
+            Log.d(LOG_TAG, "Kein ShareActionProvider vorhanden!");
+        }
+
         return true;
     }
 
