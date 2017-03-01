@@ -15,4 +15,7 @@
     <string name="preference_indizemodus_key">indizemodus</string>
     <string name="preference_indizemodus_summary">Eine Indizeliste wird anstelle der Aktienliste angezeigt.</string>
 
+
+    <string name="action_starte_browser">Im Browser anzeigen</string>
+
 </resources>
