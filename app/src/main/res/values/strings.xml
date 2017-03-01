@@ -11,4 +11,8 @@
     <string name="preference_objektliste_key">Objektliste</string>
     <string name="preference_objektliste_default">BMW.DE,DAI.DE,VOW3.DE,SAP.DE,^GDAXI</string>
 
+    <string name="preference_indizemodus_title">Marktübersicht (Indize-Modus)</string>
+    <string name="preference_indizemodus_key">indizemodus</string>
+    <string name="preference_indizemodus_summary">Eine Indizeliste wird anstelle der Aktienliste angezeigt.</string>
+
 </resources>

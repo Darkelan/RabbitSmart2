@@ -4,6 +4,7 @@ package de.kumodo.rabbitsmart;
  * Created by l.schmidt on 20.02.2017.
  */
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
 import java.io.BufferedReader;
@@ -15,6 +16,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -75,10 +77,28 @@ public class ObjektlisteFragment extends Fragment{
 
             // Erzeugen einer Instanz von HoleDatenTask und starten des asynchronen Tasks
             HoleDatenTask holeDatenTask = new HoleDatenTask();
-            holeDatenTask.execute("Aktie");
+
+            // Auslesen der ausgewählten Aktienliste aus den SharedPreferences
+            SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String prefObjektlisteKey = getString(R.string.preference_objektliste_key);
+            String prefObjektlisteDefault = getString(R.string.preference_objektliste_default);
+            String Objektliste = sPrefs.getString(prefObjektlisteKey,prefObjektlisteDefault);
+
+            // Auslesen des Anzeige-Modus aus den SharedPreferences
+            String prefIndizemodusKey = getString(R.string.preference_indizemodus_key);
+            Boolean indizemodus = sPrefs.getBoolean(prefIndizemodusKey, false);
+
+            // Starten des asynchronen Tasks und Übergabe der Aktienliste
+            if (indizemodus) {
+                String indizeliste = "^GDAXI,^TECDAX,^MDAXI,^SDAXI,^GSPC,^N225,^HSI,XAGUSD=X,XAUUSD=X";
+                holeDatenTask.execute(indizeliste);
+            }
+            else {
+                holeDatenTask.execute(Objektliste);
+            }
 
             // Den Benutzer informieren, dass neue Aktiendaten im Hintergrund abgefragt werden
-            Toast.makeText(getActivity(), "Aktiendaten werden abgefragt!",
+            Toast.makeText(getActivity(), "Objektdaten werden abgefragt!",
                     Toast.LENGTH_SHORT).show();
 
             return true;
@@ -231,7 +251,7 @@ public class ObjektlisteFragment extends Fragment{
             final String DOWNLOAD_URL = "http://download.finance.yahoo.com/d/quotes.csv";
             final String DIAGNOSTICS = "'&diagnostics=true";
 
-            String symbols = "BMW.DE,DAI.DE,^GDAXI";
+            String symbols = strings[0];
             symbols = symbols.replace("^", "%255E");
             String parameters = "snc4xl1d1t1c1p2ohgv";
             String columns = "symbol,name,currency,exchange,price,date,time," +
